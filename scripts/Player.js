@@ -1,15 +1,41 @@
+import Sprite from './Sprite.js'
+
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
 canvas.width = 1024
 canvas.height = 576
 
-export default class Player {
-  constructor({ position, velocity, keys, moveSpeed }) {
-    this.position = position
+export default class Player extends Sprite {
+  constructor({
+    position,
+    imageSrc,
+    velocity,
+    keys,
+    moveSpeed,
+    scale,
+    allFrames,
+    maxFrames,
+    pose,
+    reverse,
+    offset,
+    dir,
+  }) {
+    super({
+      dir,
+      position,
+      imageSrc,
+      scale,
+      allFrames,
+      maxFrames,
+      pose,
+      reverse,
+      offset,
+    })
     this.velocity = velocity
     this.width = 40
     this.height = 100
+
     this.moveSpeed = moveSpeed
     this.gravity = 0.3
     this.keys = keys
@@ -69,21 +95,21 @@ export default class Player {
     }
   }
 
-  draw() {
-    c.fillStyle = 'red'
-    c.fillRect(this.position.x, this.position.y, this.width, this.height)
-  }
-
   update() {
     this.draw()
+    this.animateFrames()
 
     if (this.intervals.right && this.intervals.left) this.velocity.x = 0
 
     this.velocity.y += this.gravity
+
     this.position.x += this.velocity.x
     this.position.y += this.velocity.y
 
-    if (this.position.y + this.height + this.velocity.y >= canvas.height) {
+    if (
+      this.position.y + this.height + this.velocity.y >=
+      canvas.height - 300
+    ) {
       this.velocity.y = 0
       this.gravity = 0
     } else {
