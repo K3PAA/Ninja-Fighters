@@ -21,6 +21,8 @@ export default class Player extends Sprite {
     offset,
     dir,
     attackBox,
+    sprites,
+    health,
     width = 40,
     height = 100,
   }) {
@@ -35,6 +37,7 @@ export default class Player extends Sprite {
       reverse,
       offset,
     })
+    this.health = health
     this.velocity = velocity
     this.width = width
     this.height = height
@@ -46,7 +49,9 @@ export default class Player extends Sprite {
     this.intervals = {
       left: undefined,
       right: undefined,
+      basicAttack: undefined,
     }
+    this.sprites = sprites
 
     this.isAttacking = false
 
@@ -62,6 +67,7 @@ export default class Player extends Sprite {
         break
       case this.keys.left:
         if (!this.intervals.left) {
+          this.currentFrame = 0
           this.intervals.left = setInterval(
             function () {
               this.velocity.x = -this.moveSpeed
@@ -72,6 +78,7 @@ export default class Player extends Sprite {
         break
       case this.keys.right:
         if (!this.intervals.right) {
+          this.currentFrame = 0
           this.intervals.right = setInterval(
             function () {
               this.velocity.x = this.moveSpeed
@@ -82,17 +89,29 @@ export default class Player extends Sprite {
         break
 
       case this.keys.attack:
-        this.attack()
+        this.currentFrame = 0
+        if (!this.intervals.basicAttack) {
+          this.attack()
+          this.intervals.basicAttack = setInterval(
+            function () {
+              this.attack()
+            }.bind(this),
+            350
+          )
+        }
+
         break
     }
   }
 
   attack() {
+    console.log(this)
+
     this.isAttacking = true
   }
 
   takeHit() {
-    console.log('auch')
+    this.health -= 10
   }
 
   stop(e) {
@@ -112,15 +131,14 @@ export default class Player extends Sprite {
         break
 
       case this.keys.attack:
+        clearInterval(this.intervals.basicAttack)
+        this.intervals.basicAttack = undefined
         this.isAttacking = false
         break
     }
   }
 
   update() {
-    this.draw()
-    this.animateFrames()
-
     if (this.intervals.right && this.intervals.left) this.velocity.x = 0
 
     this.velocity.y += this.gravity
@@ -137,5 +155,25 @@ export default class Player extends Sprite {
     } else {
       this.gravity += 0.01
     }
+
+    if (this.velocity.x > 0 || this.velocity.x < 0) {
+      if (this.velocity.x < 0) {
+        this.attackBox.offset.x = this.attackBox.values.left.x
+        this.dir = -1
+      } else {
+        this.attackBox.offset.x = this.attackBox.values.right.x
+        this.dir = 1
+      }
+      this.pose = this.sprites.run.number
+      this.maxFrames = this.sprites.run.frames
+      this.framesHold = this.sprites.run.speed
+    } else {
+      this.pose = this.sprites.idle.number
+      this.maxFrames = this.sprites.idle.frames
+      this.framesHold = this.sprites.idle.speed
+    }
+
+    this.draw()
+    this.animateFrames()
   }
 }

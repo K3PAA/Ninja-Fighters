@@ -21,7 +21,6 @@ export default class Sprite {
     this.scale = scale
     this.framesElapsed = 0
     this.dir = dir
-    this.framesToGo = 6
     this.framesHold = 8
     this.maxFrames = maxFrames
     this.allFrames = allFrames
@@ -61,9 +60,9 @@ export default class Sprite {
 
   animateFrames() {
     this.framesElapsed++
-    if (this.framesElapsed === this.framesHold) {
+    if (this.framesElapsed % 10 === this.framesHold) {
       this.framesElapsed = 0
-      if (this.currentFrame < this.framesToGo - 1) this.currentFrame++
+      if (this.currentFrame < this.maxFrames - 1) this.currentFrame++
       else this.currentFrame = 0
     }
   }
