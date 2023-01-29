@@ -11,7 +11,7 @@ export default class Sprite {
     scale = 1,
     allFrames = { x: 0, y: 0 },
     maxFrames,
-    offset,
+    offset = { x: 0, y: 0 },
     dir = 1,
     pose = 0,
   }) {
@@ -28,9 +28,6 @@ export default class Sprite {
     this.currentFrame = 0
     this.pose = pose
     this.offset = offset
-
-    this.width = 50
-    this.height = 100
   }
 
   draw() {

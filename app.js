@@ -23,6 +23,14 @@ const player = new Player({
     x: 28,
     y: 14,
   },
+  attackBox: {
+    x: 150,
+    y: 50,
+    offset: {
+      x: 20,
+      y: 50,
+    },
+  },
   maxFrames: 8,
   imageSrc: 'assets/fire.png',
   moveSpeed: 5,
@@ -55,6 +63,17 @@ const enemy = new Player({
     ulti: 'u',
     attack: 'o',
   },
+  imageSrc: 'assets/ground.png',
+  offset: {
+    x: 305,
+    y: 193,
+  },
+  height: 80,
+  allFrames: {
+    x: 25,
+    y: 14,
+  },
+  scale: 2.25,
 })
 
 const animate = () => {
@@ -64,14 +83,50 @@ const animate = () => {
   player.update()
   if (player.velocity.x > 0 || player.velocity.x < 0) {
     if (player.velocity.x < 0) {
+      player.attackBox.offset.x = -130
       player.dir = -1
-    } else player.dir = 1
+    } else {
+      player.attackBox.offset.x = 20
+      player.dir = 1
+    }
     player.pose = 1
     player.framesToGo = 8
     player.framesHold = 8
+  } else player.pose = 0
+
+  if (player.isAttacking) {
+    c.fillStyle = 'rgba(0,0,0,0.3)'
+    c.fillRect(
+      player.position.x + player.attackBox.offset.x,
+      player.position.y + player.attackBox.offset.y,
+      player.attackBox.x,
+      player.attackBox.y
+    )
+
+    // Checking For Collision X axis
+    if (
+      (player.position.x + player.attackBox.x > enemy.position.x &&
+        player.position.x < enemy.position.x + enemy.width &&
+        player.dir === 1) ||
+      (player.position.x - player.attackBox.x <
+        enemy.position.x + enemy.width &&
+        player.position.x > enemy.position.x + enemy.width &&
+        player.dir === -1 &&
+        player.isAttacking)
+    ) {
+      // Checking For Collision Y axis
+      if (
+        player.position.y + player.attackBox.y <
+          enemy.position.y + enemy.height &&
+        player.position.y + player.attackBox.offset.y > enemy.position.y
+      ) {
+        player.isAttacking = false
+        enemy.takeHit()
+      }
+    }
   }
 
-  // enemy.update()
+  enemy.update()
 }
 
 animate()

@@ -20,6 +20,9 @@ export default class Player extends Sprite {
     reverse,
     offset,
     dir,
+    attackBox,
+    width = 40,
+    height = 100,
   }) {
     super({
       dir,
@@ -33,9 +36,10 @@ export default class Player extends Sprite {
       offset,
     })
     this.velocity = velocity
-    this.width = 40
-    this.height = 100
+    this.width = width
+    this.height = height
 
+    this.attackBox = attackBox
     this.moveSpeed = moveSpeed
     this.gravity = 0.3
     this.keys = keys
@@ -43,6 +47,8 @@ export default class Player extends Sprite {
       left: undefined,
       right: undefined,
     }
+
+    this.isAttacking = false
 
     window.addEventListener('keydown', this.move.bind(this))
     window.addEventListener('keyup', this.stop.bind(this))
@@ -74,7 +80,19 @@ export default class Player extends Sprite {
           )
         }
         break
+
+      case this.keys.attack:
+        this.attack()
+        break
     }
+  }
+
+  attack() {
+    this.isAttacking = true
+  }
+
+  takeHit() {
+    console.log('auch')
   }
 
   stop(e) {
@@ -91,6 +109,10 @@ export default class Player extends Sprite {
         clearInterval(this.intervals.right)
         this.intervals.right = undefined
         this.velocity.x = 0
+        break
+
+      case this.keys.attack:
+        this.isAttacking = false
         break
     }
   }
