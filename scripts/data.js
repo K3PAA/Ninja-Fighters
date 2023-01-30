@@ -36,6 +36,10 @@ export const fireFighter = new Player({
     },
   },
   maxFrames: 8,
+  stamina: {
+    max: 120,
+    current: 120,
+  },
   imageSrc: 'assets/fire.png',
   moveSpeed: 5,
   keys: {
@@ -46,7 +50,14 @@ export const fireFighter = new Player({
     ulti: 'q',
     attack: 'e',
   },
-  health: 100,
+  health: {
+    starting: 180,
+    current: 180,
+  },
+  ult: {
+    current: 0,
+    need: 100,
+  },
   scale: 2.25,
   sprites: {
     idle: {
@@ -94,6 +105,10 @@ export const groundFighter = new Player({
       y: 50,
     },
   },
+  ult: {
+    current: 0,
+    needed: 100,
+  },
   moveSpeed: 5,
   keys: {
     up: 'i',
@@ -113,8 +128,15 @@ export const groundFighter = new Player({
     x: 25,
     y: 14,
   },
-  health: 100,
+  health: {
+    starting: 120,
+    current: 120,
+  },
   scale: 2.25,
+  stamina: {
+    max: 120,
+    current: 120,
+  },
   sprites: {
     idle: {
       number: 0,

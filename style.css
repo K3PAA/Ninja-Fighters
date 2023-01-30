@@ -6,4 +6,173 @@
 
 body {
   background-color: black;
+  font-family: 'Space Mono', monospace;
+}
+
+.info {
+  display: flex;
+}
+
+.canvas-container {
+  background-color: aliceblue;
+  position: absolute;
+}
+
+canvas {
+  position: relative;
+}
+
+.players-info {
+  padding: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  z-index: 100;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#timer {
+  width: 100px;
+  border-radius: 20%;
+  flex-shrink: 0;
+  font-size: 2rem;
+  background-color: white;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.player-health-container,
+.enemy-health-container {
+  position: relative;
+  display: flex;
+
+  width: 100%;
+  height: 40px;
+}
+
+.player-health-container {
+  justify-content: flex-end;
+}
+
+.player-health,
+.enemy-health {
+  z-index: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-top: 2px solid silver;
+  border-bottom: 2px solid silver;
+  background: green;
+}
+
+.player-secondary-bg,
+.enemy-secondary-bg {
+  position: absolute;
+  height: 100%;
+  background: red;
+  width: 100%;
+  border-top: 2px solid silver;
+  border-bottom: 2px solid silver;
+}
+
+.enemy-health-container img,
+.player-health-container img {
+  z-index: 5;
+  position: absolute;
+  top: -20px;
+  background: white;
+  padding: 25px;
+  box-shadow: 0 0 50px -5px rgba(111, 20, 50, 1);
+}
+.player-health-container img {
+  left: -100px;
+  border-radius: 25% 5px 25% 5px;
+}
+
+.enemy-health-container img {
+  right: -100px;
+  border-radius: 5px 25% 5px 25%;
+}
+
+.player-stamina,
+.player-stamina-bg {
+  position: absolute;
+  top: 54px;
+  left: 0;
+  height: 15px;
+  width: 60%;
+}
+
+.player-stamina {
+  background: blue;
+}
+
+.player-stamina-bg {
+  z-index: 1;
+  border: 2px solid silver;
+  background-color: transparent;
+}
+
+.player-ult,
+.player-ult-bg {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  height: 10px;
+}
+.player-ult {
+  width: 0;
+  background-color: rgb(193, 124, 230);
+}
+
+.player-ult-bg {
+  z-index: 1;
+  width: 70%;
+  background-color: transparent;
+  border: 2px solid silver;
+}
+
+/* Enem */
+
+.enemy-stamina,
+.enemy-stamina-bg {
+  position: absolute;
+  top: 54px;
+  right: 0;
+  height: 15px;
+  width: 60%;
+}
+
+.enemy-stamina {
+  background: blue;
+}
+
+.enemy-stamina-bg {
+  z-index: 1;
+  border: 2px solid silver;
+  background-color: transparent;
+}
+
+.enemy-ult,
+.enemy-ult-bg {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  height: 10px;
+}
+.enemy-ult {
+  width: 0;
+  background-color: rgb(193, 124, 230);
+}
+
+.enemy-ult-bg {
+  z-index: 1;
+  width: 70%;
+  background-color: transparent;
+  border: 2px solid silver;
 }

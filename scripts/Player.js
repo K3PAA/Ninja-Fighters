@@ -1,4 +1,4 @@
-import Sprite from './Sprite.js'
+import PlayerSprite from './PlayerSprite.js'
 
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
@@ -6,7 +6,7 @@ const c = canvas.getContext('2d')
 canvas.width = 1024
 canvas.height = 576
 
-export default class Player extends Sprite {
+export default class Player extends PlayerSprite {
   constructor({
     position,
     imageSrc,
@@ -23,6 +23,8 @@ export default class Player extends Sprite {
     attackBox,
     sprites,
     health,
+    ult,
+    stamina,
     width = 40,
     height = 100,
   }) {
@@ -41,6 +43,7 @@ export default class Player extends Sprite {
     this.velocity = velocity
     this.width = width
     this.height = height
+    this.ult = ult
 
     this.attackBox = attackBox
     this.moveSpeed = moveSpeed
@@ -52,6 +55,7 @@ export default class Player extends Sprite {
       basicAttack: undefined,
     }
     this.sprites = sprites
+    this.stamina = stamina
 
     this.isAttacking = false
 
@@ -105,13 +109,17 @@ export default class Player extends Sprite {
   }
 
   attack() {
-    console.log(this)
-
-    this.isAttacking = true
+    if (this.stamina.current - 10 >= 0) {
+      this.isAttacking = true
+      this.stamina.current -= 10
+    } else {
+      this.isAttacking = false
+    }
   }
 
   takeHit() {
-    this.health -= 10
+    this.health.current -= 10
+    return (this.health.current * 100) / this.health.starting
   }
 
   stop(e) {
@@ -148,7 +156,7 @@ export default class Player extends Sprite {
 
     if (
       this.position.y + this.height + this.velocity.y >=
-      canvas.height - 300
+      canvas.height - 150
     ) {
       this.velocity.y = 0
       this.gravity = 0

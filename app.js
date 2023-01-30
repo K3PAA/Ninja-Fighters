@@ -1,4 +1,3 @@
-import Player from './scripts/Player.js'
 import { rectangularCollision } from './scripts/utils.js'
 import { fireFighter, groundFighter } from './scripts/data.js'
 
@@ -14,7 +13,7 @@ const enemy = groundFighter
 
 const animate = () => {
   requestAnimationFrame(animate)
-  c.fillStyle = 'green'
+  c.fillStyle = 'rgba(120,40,70,1)'
   c.fillRect(0, 0, canvas.width, canvas.height)
 
   if (player.isAttacking) {
@@ -25,6 +24,8 @@ const animate = () => {
       player.attackBox.x,
       player.attackBox.y
     )
+    document.querySelector('.player-stamina').style.width =
+      (player.stamina.current * 60) / player.stamina.max + '%'
   }
 
   if (enemy.isAttacking) {
@@ -35,11 +36,18 @@ const animate = () => {
       enemy.attackBox.x,
       enemy.attackBox.y
     )
+
+    document.querySelector('.enemy-stamina').style.width =
+      (enemy.stamina.current * 60) / enemy.stamina.max + '%'
   }
 
   // Checking For Collision X axis
   if (rectangularCollision({ rect1: player, rect2: enemy })) {
-    enemy.takeHit()
+    document.querySelector('.enemy-health').style.width = enemy.takeHit() + '%'
+    if (player.ult.current < 70) player.ult.current += 10
+    document.querySelector('.player-ult').style.width = player.ult.current + '%'
+
+    if (enemy.health.current === 0) console.log('Fire Knight Won')
     player.isAttacking = false
 
     setTimeout(() => (player.canAttack = true), 300)
@@ -48,7 +56,13 @@ const animate = () => {
     setTimeout(() => (player.canAttack = true), 300)
   }
   if (rectangularCollision({ rect1: enemy, rect2: player })) {
-    player.takeHit()
+    document.querySelector('.player-health').style.width =
+      player.takeHit() + '%'
+
+    if (enemy.ult.current < 70) enemy.ult.current += 10
+    document.querySelector('.enemy-ult').style.width = enemy.ult.current + '%'
+
+    if (player.health.current === 0) console.log('Bold Seen Won')
     enemy.isAttacking = false
 
     setTimeout(() => (enemy.canAttack = true), 300)

@@ -4,12 +4,45 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet" />
+    <title>Ninja Turtles</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <canvas></canvas>
+    <main class="canvas-container">
+      <section class="players-info">
+        <div class="player-health-container">
+          <div class="player-health"></div>
+          <div class="player-secondary-bg"></div>
 
+          <div class="player-stamina"></div>
+          <div class="player-stamina-bg"></div>
+
+          <div class="player-ult"></div>
+          <div class="player-ult-bg"></div>
+
+          <img src="assets/fire_knight.png" alt="" />
+        </div>
+        <div id="timer">30</div>
+        <div class="enemy-health-container">
+          <div class="enemy-health"></div>
+          <div class="enemy-secondary-bg"></div>
+
+          <div class="enemy-stamina"></div>
+          <div class="enemy-stamina-bg"></div>
+
+          <div class="enemy-ult"></div>
+          <div class="enemy-ult-bg"></div>
+
+          <img src="assets/ground_monk.png" alt="" />
+        </div>
+      </section>
+      <canvas></canvas>
+    </main>
     <script src="app.js" type="module"></script>
   </body>
 </html>
