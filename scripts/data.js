@@ -1,4 +1,5 @@
 import Player from './Player.js'
+import Sprite from './Sprite.js'
 
 export const fireFighter = new Player({
   position: {
@@ -18,7 +19,7 @@ export const fireFighter = new Player({
     y: 14,
   },
   attackBox: {
-    x: 150,
+    x: 220,
     y: 50,
     values: {
       right: {
@@ -26,7 +27,7 @@ export const fireFighter = new Player({
         y: 50,
       },
       left: {
-        x: -130,
+        x: -200,
         y: 50,
       },
     },
@@ -70,10 +71,20 @@ export const fireFighter = new Player({
       frames: 8,
       speed: 7,
     },
+    jump: {
+      number: 2,
+      frames: 3,
+      speed: 7,
+    },
+    fall: {
+      number: 3,
+      frames: 3,
+      speed: 7,
+    },
     attack: {
       number: 5,
       frames: 8,
-      speed: 7,
+      speed: 10,
     },
   },
 })
@@ -93,16 +104,16 @@ export const groundFighter = new Player({
     values: {
       right: {
         x: 20,
-        y: 50,
+        y: 40,
       },
       left: {
         x: -130,
-        y: 50,
+        y: 40,
       },
     },
     offset: {
       x: 20,
-      y: 50,
+      y: 40,
     },
   },
   ult: {
@@ -128,6 +139,10 @@ export const groundFighter = new Player({
     x: 25,
     y: 14,
   },
+  difference: {
+    x: 0,
+    y: 10,
+  },
   health: {
     starting: 120,
     current: 120,
@@ -148,10 +163,38 @@ export const groundFighter = new Player({
       frames: 8,
       speed: 7,
     },
+    jump: {
+      number: 2,
+      frames: 3,
+      speed: 7,
+    },
+    fall: {
+      number: 3,
+      frames: 3,
+      speed: 7,
+    },
     attack: {
       number: 5,
       frames: 6,
-      speed: 7,
+      speed: 3,
     },
   },
+})
+
+export const background = new Sprite({
+  imageSrc: 'assets/bg.png',
+  position: {
+    x: 0,
+    y: 0,
+  },
+})
+
+export const shop = new Sprite({
+  imageSrc: 'assets/shop.png',
+  position: {
+    x: 690,
+    y: 191,
+  },
+  scale: 2.25,
+  frameMax: 6,
 })

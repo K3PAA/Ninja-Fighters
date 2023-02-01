@@ -22,6 +22,7 @@ export default class Player extends PlayerSprite {
     dir,
     attackBox,
     sprites,
+    difference = { x: 0, y: 0 },
     health,
     ult,
     stamina,
@@ -45,6 +46,9 @@ export default class Player extends PlayerSprite {
     this.height = height
     this.ult = ult
 
+    this.touchGround = true
+
+    this.difference = difference
     this.attackBox = attackBox
     this.moveSpeed = moveSpeed
     this.gravity = 0.3
@@ -57,7 +61,8 @@ export default class Player extends PlayerSprite {
     this.sprites = sprites
     this.stamina = stamina
 
-    this.isAttacking = false
+    this.hitted = false
+    this.canAttack = false
 
     window.addEventListener('keydown', this.move.bind(this))
     window.addEventListener('keyup', this.stop.bind(this))
@@ -66,12 +71,14 @@ export default class Player extends PlayerSprite {
   move(e) {
     switch (e.key) {
       case this.keys.up:
+        this.touchGround = false
         this.gravity = 0.2
         this.velocity.y = -10
         break
       case this.keys.left:
         if (!this.intervals.left) {
           this.currentFrame = 0
+
           this.intervals.left = setInterval(
             function () {
               this.velocity.x = -this.moveSpeed
@@ -82,7 +89,6 @@ export default class Player extends PlayerSprite {
         break
       case this.keys.right:
         if (!this.intervals.right) {
-          this.currentFrame = 0
           this.intervals.right = setInterval(
             function () {
               this.velocity.x = this.moveSpeed
@@ -93,14 +99,13 @@ export default class Player extends PlayerSprite {
         break
 
       case this.keys.attack:
-        this.currentFrame = 0
         if (!this.intervals.basicAttack) {
-          this.attack()
+          if (this.stamina.current > 0) this.switchSprite('basic-attack')
           this.intervals.basicAttack = setInterval(
             function () {
-              this.attack()
+              // this.attack()
             }.bind(this),
-            350
+            400
           )
         }
 
@@ -109,12 +114,7 @@ export default class Player extends PlayerSprite {
   }
 
   attack() {
-    if (this.stamina.current - 10 >= 0) {
-      this.isAttacking = true
-      this.stamina.current -= 10
-    } else {
-      this.isAttacking = false
-    }
+    this.canAttack = true
   }
 
   takeHit() {
@@ -131,23 +131,121 @@ export default class Player extends PlayerSprite {
         clearInterval(this.intervals.left)
         this.intervals.left = undefined
         this.velocity.x = 0
+
         break
       case this.keys.right:
         clearInterval(this.intervals.right)
         this.intervals.right = undefined
         this.velocity.x = 0
+
         break
 
       case this.keys.attack:
-        clearInterval(this.intervals.basicAttack)
-        this.intervals.basicAttack = undefined
-        this.isAttacking = false
+        if (
+          this.currentFrame >= this.sprites.attack.frames - 2 ||
+          this.currentFrame < 2
+        ) {
+          this.resetAttack()
+        } else {
+          let x = setInterval(() => {
+            {
+              if (this.currentFrame >= this.sprites.attack.frames - 2) {
+                this.resetAttack()
+                clearInterval(x)
+                x = undefined
+              }
+            }
+          }, this.sprites.attack.speed)
+        }
+
+        break
+    }
+  }
+
+  resetAttack() {
+    clearInterval(this.intervals.basicAttack)
+    this.intervals.basicAttack = undefined
+    this.canAttack = false
+  }
+
+  switchSprite(sprite) {
+    switch (sprite) {
+      case 'basic-attack':
+        if (this.pose !== this.sprites.attack.number) {
+          this.pose = this.sprites.attack.number
+          this.maxFrames = this.sprites.attack.frames
+          this.framesHold = this.sprites.attack.speed
+          this.currentFrame = 0
+        }
+
+        break
+
+      case 'move-right':
+        this.pose = this.sprites.run.number
+        this.maxFrames = this.sprites.run.frames
+        this.framesHold = this.sprites.run.speed
+
+        break
+
+      case 'move-left':
+        this.pose = this.sprites.run.number
+        this.maxFrames = this.sprites.run.frames
+        this.framesHold = this.sprites.run.speed
+
+        break
+
+      case 'jump':
+        this.pose = this.sprites.jump.number
+        this.maxFrames = this.sprites.jump.frames
+        this.framesHold = this.sprites.jump.speed
+        break
+
+      case 'fall':
+        this.pose = this.sprites.fall.number
+        this.maxFrames = this.sprites.fall.frames
+        this.framesHold = this.sprites.fall.speed
+        break
+
+      default:
+        if (this.pose !== this.sprites.idle.number) {
+          this.pose = this.sprites.idle.number
+          this.maxFrames = this.sprites.idle.frames
+          this.framesHold = this.sprites.idle.speed
+        }
         break
     }
   }
 
   update() {
-    if (this.intervals.right && this.intervals.left) this.velocity.x = 0
+    if (this.intervals.right && this.intervals.left) {
+      this.velocity.x = 0
+      this.switchSprite('idle')
+    }
+
+    if (this.velocity.x > 0) {
+      this.dir = 1
+      this.attackBox.offset.x = this.attackBox.values.right.x
+    } else if (this.velocity.x < 0) {
+      this.attackBox.offset.x = this.attackBox.values.left.x
+      this.dir = -1
+    }
+
+    if (!this.intervals.basicAttack) {
+      if (this.velocity.y < 0) this.switchSprite('jump')
+      else if (this.velocity.y >= 0 && !this.touchGround)
+        this.switchSprite('fall')
+      else if (this.velocity.x > 0) this.switchSprite('move-right')
+      else if (this.velocity.x < 0) this.switchSprite('move-left')
+      else this.switchSprite('idle')
+    } else {
+      if (this.stamina.current === 0) this.resetAttack()
+      if (this.currentFrame === 0) {
+        this.hitted = false
+      }
+      if (this.currentFrame >= 2 && this.currentFrame < 4 && !this.hitted) {
+        this.attack()
+      }
+    }
 
     this.velocity.y += this.gravity
 
@@ -156,29 +254,13 @@ export default class Player extends PlayerSprite {
 
     if (
       this.position.y + this.height + this.velocity.y >=
-      canvas.height - 150
+      canvas.height - 145 + this.difference.y
     ) {
+      this.touchGround = true
       this.velocity.y = 0
       this.gravity = 0
     } else {
-      this.gravity += 0.01
-    }
-
-    if (this.velocity.x > 0 || this.velocity.x < 0) {
-      if (this.velocity.x < 0) {
-        this.attackBox.offset.x = this.attackBox.values.left.x
-        this.dir = -1
-      } else {
-        this.attackBox.offset.x = this.attackBox.values.right.x
-        this.dir = 1
-      }
-      this.pose = this.sprites.run.number
-      this.maxFrames = this.sprites.run.frames
-      this.framesHold = this.sprites.run.speed
-    } else {
-      this.pose = this.sprites.idle.number
-      this.maxFrames = this.sprites.idle.frames
-      this.framesHold = this.sprites.idle.speed
+      this.gravity += 0.02
     }
 
     this.draw()

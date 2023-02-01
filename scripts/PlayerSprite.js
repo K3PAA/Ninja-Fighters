@@ -60,10 +60,12 @@ export default class PlayerSprite {
 
   animateFrames() {
     this.framesElapsed++
-    if (this.framesElapsed % 10 === this.framesHold) {
+    if (this.framesElapsed % this.framesHold === 0) {
       this.framesElapsed = 0
       if (this.currentFrame < this.maxFrames - 1) this.currentFrame++
-      else this.currentFrame = 0
+      else {
+        this.currentFrame = 0
+      }
     }
   }
 
