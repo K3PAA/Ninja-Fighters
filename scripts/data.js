@@ -6,6 +6,7 @@ export const fireFighter = new Player({
     x: 100,
     y: 100,
   },
+  doubleJump: false,
   velocity: {
     x: 0,
     y: 0,
@@ -18,22 +19,40 @@ export const fireFighter = new Player({
     x: 28,
     y: 14,
   },
+  ultAttackBox: {
+    x: 200,
+    y: 200,
+    values: {
+      right: {
+        x: 30,
+        y: -60,
+      },
+      left: {
+        x: -240,
+        y: -60,
+      },
+    },
+    offset: {
+      x: 30,
+      y: -60,
+    },
+  },
   attackBox: {
     x: 220,
     y: 50,
     values: {
       right: {
-        x: 20,
-        y: 50,
+        x: 0,
+        y: 0,
       },
       left: {
-        x: -200,
-        y: 50,
+        x: -180,
+        y: 0,
       },
     },
     offset: {
-      x: 20,
-      y: 50,
+      x: 0,
+      y: 0,
     },
   },
   maxFrames: 8,
@@ -48,16 +67,21 @@ export const fireFighter = new Player({
     down: 's',
     left: 'a',
     right: 'd',
-    ulti: 'q',
+    ult: 'q',
     attack: 'e',
   },
   health: {
     starting: 180,
     current: 180,
   },
+  basicAttack: {
+    dmg: 20,
+    cost: 30,
+  },
   ult: {
     current: 0,
-    need: 100,
+    dmg: 40,
+    needed: 20,
   },
   scale: 2.25,
   sprites: {
@@ -86,6 +110,11 @@ export const fireFighter = new Player({
       frames: 8,
       speed: 10,
     },
+    ult: {
+      number: 10,
+      frames: 16,
+      speed: 6,
+    },
   },
 })
 
@@ -98,27 +127,51 @@ export const groundFighter = new Player({
     x: 0,
     y: 0,
   },
-  attackBox: {
-    x: 150,
-    y: 50,
+  basicAttack: {
+    dmg: 10,
+    cost: 10,
+  },
+  ultAttackBox: {
+    x: 100,
+    y: 100,
     values: {
       right: {
-        x: 20,
+        x: 80,
         y: 40,
       },
       left: {
-        x: -130,
+        x: -140,
         y: 40,
       },
     },
     offset: {
-      x: 20,
-      y: 40,
+      x: 80,
+      y: 0,
     },
   },
+  attackBox: {
+    x: 130,
+    y: 50,
+    values: {
+      right: {
+        x: 0,
+        y: 0,
+      },
+      left: {
+        x: -90,
+        y: 0,
+      },
+    },
+    offset: {
+      x: 0,
+      y: 0,
+    },
+  },
+  doubleJump: true,
   ult: {
     current: 0,
-    needed: 100,
+    dmg: 20,
+    needed: 50,
   },
   moveSpeed: 5,
   keys: {
@@ -126,7 +179,7 @@ export const groundFighter = new Player({
     down: 'k',
     left: 'j',
     right: 'l',
-    ulti: 'u',
+    ult: 'u',
     attack: 'o',
   },
   imageSrc: 'assets/ground.png',
@@ -139,10 +192,7 @@ export const groundFighter = new Player({
     x: 25,
     y: 14,
   },
-  difference: {
-    x: 0,
-    y: 10,
-  },
+
   health: {
     starting: 120,
     current: 120,
@@ -176,7 +226,12 @@ export const groundFighter = new Player({
     attack: {
       number: 5,
       frames: 6,
-      speed: 3,
+      speed: 2,
+    },
+    ult: {
+      number: 8,
+      frames: 22,
+      speed: 5,
     },
   },
 })

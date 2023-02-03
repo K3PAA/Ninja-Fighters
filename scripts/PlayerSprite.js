@@ -31,10 +31,7 @@ export default class PlayerSprite {
 
   draw() {
     c.save()
-    c.translate(
-      this.position.x + this.width / 2,
-      this.position.y + this.height / 2
-    )
+    c.translate(this.position.x, this.position.y)
 
     c.scale(this.dir, 1)
     c.drawImage(
@@ -43,18 +40,13 @@ export default class PlayerSprite {
       this.pose * (this.image.height / this.allFrames.y),
       288,
       128,
-      0 - this.offset.x,
+      0 - this.offset.x - (this.dir === -1 && this.width),
       0 - this.offset.y,
       288 * this.scale,
       128 * this.scale
     )
-    c.fillStyle = 'rgba(0,0,0,0.3)'
-    c.fillRect(0, 0, this.width, this.height)
 
-    c.translate(
-      -this.position.x - this.width / 2,
-      -this.position.y - this.height / 2
-    )
+    c.translate(-this.position.x, -this.position.y)
     c.restore()
   }
 

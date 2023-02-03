@@ -1,4 +1,5 @@
 import PlayerSprite from './PlayerSprite.js'
+import { updateStamina } from './utils.js'
 
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
@@ -15,19 +16,22 @@ export default class Player extends PlayerSprite {
     moveSpeed,
     scale,
     allFrames,
+    ultAttackBox,
     maxFrames,
     pose,
+    doubleJump,
     reverse,
     offset,
     dir,
+    basicAttack,
     attackBox,
     sprites,
-    difference = { x: 0, y: 0 },
     health,
     ult,
     stamina,
     width = 40,
     height = 100,
+    name,
   }) {
     super({
       dir,
@@ -40,15 +44,22 @@ export default class Player extends PlayerSprite {
       reverse,
       offset,
     })
+
+    this.ultAttackBox = ultAttackBox
+    this.doubleJump = doubleJump
+    this.basicAttack = basicAttack
     this.health = health
     this.velocity = velocity
     this.width = width
     this.height = height
     this.ult = ult
 
+    this.name = name
     this.touchGround = true
 
-    this.difference = difference
+    this.jumped = 0
+    this.isUlting = false
+
     this.attackBox = attackBox
     this.moveSpeed = moveSpeed
     this.gravity = 0.3
@@ -71,12 +82,22 @@ export default class Player extends PlayerSprite {
   move(e) {
     switch (e.key) {
       case this.keys.up:
-        this.touchGround = false
-        this.gravity = 0.2
-        this.velocity.y = -10
+        if (!this.isUlting) {
+          if (this.touchGround || (this.doubleJump && this.jumped < 2)) {
+            this.gravity = 0.2
+            this.velocity.y = -10
+            this.jumped++
+          } else if (this.touchGround && !this.isUlting) {
+            this.gravity = 0.2
+            this.velocity.y = -10
+            this.jumped++
+          }
+          this.touchGround = false
+        }
+
         break
       case this.keys.left:
-        if (!this.intervals.left) {
+        if (!this.intervals.left && !this.isUlting) {
           this.currentFrame = 0
 
           this.intervals.left = setInterval(
@@ -88,7 +109,7 @@ export default class Player extends PlayerSprite {
         }
         break
       case this.keys.right:
-        if (!this.intervals.right) {
+        if (!this.intervals.right && !this.isUlting) {
           this.intervals.right = setInterval(
             function () {
               this.velocity.x = this.moveSpeed
@@ -99,8 +120,9 @@ export default class Player extends PlayerSprite {
         break
 
       case this.keys.attack:
-        if (!this.intervals.basicAttack) {
-          if (this.stamina.current > 0) this.switchSprite('basic-attack')
+        if (!this.intervals.basicAttack && !this.isUlting) {
+          if (this.stamina.current - this.basicAttack.cost > 0)
+            this.switchSprite('basic-attack')
           this.intervals.basicAttack = setInterval(
             function () {
               // this.attack()
@@ -108,7 +130,13 @@ export default class Player extends PlayerSprite {
             400
           )
         }
+        break
 
+      case this.keys.ult:
+        if (this.ult.current === this.ult.needed) {
+          this.ult.current = 0
+          this.switchSprite('super-attack')
+        }
         break
     }
   }
@@ -117,8 +145,8 @@ export default class Player extends PlayerSprite {
     this.canAttack = true
   }
 
-  takeHit() {
-    this.health.current -= 10
+  takeHit(dmg) {
+    this.health.current -= dmg
     return (this.health.current * 100) / this.health.starting
   }
 
@@ -170,6 +198,15 @@ export default class Player extends PlayerSprite {
 
   switchSprite(sprite) {
     switch (sprite) {
+      case 'super-attack':
+        if (this.pose !== this.sprites.ult.number) {
+          this.pose = this.sprites.ult.number
+          this.maxFrames = this.sprites.ult.frames
+          this.framesHold = this.sprites.ult.speed
+          this.currentFrame = 0
+          this.isUlting = true
+        }
+        break
       case 'basic-attack':
         if (this.pose !== this.sprites.attack.number) {
           this.pose = this.sprites.attack.number
@@ -184,10 +221,16 @@ export default class Player extends PlayerSprite {
         this.pose = this.sprites.run.number
         this.maxFrames = this.sprites.run.frames
         this.framesHold = this.sprites.run.speed
+        this.dir = 1
+        this.attackBox.offset.x = this.attackBox.values.right.x
+        this.ultAttackBox.offset.x = this.ultAttackBox.values.right.x
 
         break
 
       case 'move-left':
+        this.attackBox.offset.x = this.attackBox.values.left.x
+        this.ultAttackBox.offset.x = this.ultAttackBox.values.left.x
+        this.dir = -1
         this.pose = this.sprites.run.number
         this.maxFrames = this.sprites.run.frames
         this.framesHold = this.sprites.run.speed
@@ -222,15 +265,12 @@ export default class Player extends PlayerSprite {
       this.switchSprite('idle')
     }
 
-    if (this.velocity.x > 0) {
-      this.dir = 1
-      this.attackBox.offset.x = this.attackBox.values.right.x
-    } else if (this.velocity.x < 0) {
-      this.attackBox.offset.x = this.attackBox.values.left.x
-      this.dir = -1
-    }
-
-    if (!this.intervals.basicAttack) {
+    if (this.isUlting) {
+      if (this.currentFrame === this.sprites.ult.frames - 1) {
+        this.switchSprite('idle')
+        this.isUlting = false
+      }
+    } else if (!this.intervals.basicAttack || this.stamina.current <= 0) {
       if (this.velocity.y < 0) this.switchSprite('jump')
       else if (this.velocity.y >= 0 && !this.touchGround)
         this.switchSprite('fall')
@@ -241,10 +281,16 @@ export default class Player extends PlayerSprite {
       if (this.stamina.current === 0) this.resetAttack()
       if (this.currentFrame === 0) {
         this.hitted = false
+        this.canAttack = false
       }
-      if (this.currentFrame >= 2 && this.currentFrame < 4 && !this.hitted) {
+      if (
+        this.currentFrame >= 2 &&
+        this.currentFrame < 4 &&
+        !this.hitted &&
+        this.stamina.current - this.basicAttack.cost > 0
+      ) {
         this.attack()
-      }
+      } else if (this.currentFrame === 4) this.canAttack = false
     }
 
     this.velocity.y += this.gravity
@@ -252,13 +298,11 @@ export default class Player extends PlayerSprite {
     this.position.x += this.velocity.x
     this.position.y += this.velocity.y
 
-    if (
-      this.position.y + this.height + this.velocity.y >=
-      canvas.height - 145 + this.difference.y
-    ) {
+    if (this.position.y + this.height + this.velocity.y >= canvas.height - 97) {
       this.touchGround = true
       this.velocity.y = 0
       this.gravity = 0
+      this.jumped = 0
     } else {
       this.gravity += 0.02
     }
