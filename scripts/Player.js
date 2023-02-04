@@ -32,8 +32,10 @@ export default class Player extends PlayerSprite {
     width = 40,
     height = 100,
     name,
+    canAnimate = true,
   }) {
     super({
+      canAnimate,
       dir,
       position,
       imageSrc,
@@ -45,6 +47,7 @@ export default class Player extends PlayerSprite {
       offset,
     })
 
+    this.canAnimate = canAnimate
     this.ultAttackBox = ultAttackBox
     this.doubleJump = doubleJump
     this.basicAttack = basicAttack
@@ -54,6 +57,7 @@ export default class Player extends PlayerSprite {
     this.height = height
     this.ult = ult
 
+    this.canMove = true
     this.name = name
     this.touchGround = true
 
@@ -69,6 +73,8 @@ export default class Player extends PlayerSprite {
       right: undefined,
       basicAttack: undefined,
     }
+
+    this.isDead = false
     this.sprites = sprites
     this.stamina = stamina
 
@@ -82,7 +88,7 @@ export default class Player extends PlayerSprite {
   move(e) {
     switch (e.key) {
       case this.keys.up:
-        if (!this.isUlting) {
+        if (!this.isUlting && !this.isDead) {
           if (this.touchGround || (this.doubleJump && this.jumped < 2)) {
             this.gravity = 0.2
             this.velocity.y = -10
@@ -97,7 +103,7 @@ export default class Player extends PlayerSprite {
 
         break
       case this.keys.left:
-        if (!this.intervals.left && !this.isUlting) {
+        if (!this.intervals.left && !this.isUlting && !this.isDead) {
           this.currentFrame = 0
 
           this.intervals.left = setInterval(
@@ -109,7 +115,7 @@ export default class Player extends PlayerSprite {
         }
         break
       case this.keys.right:
-        if (!this.intervals.right && !this.isUlting) {
+        if (!this.intervals.right && !this.isUlting && !this.isDead) {
           this.intervals.right = setInterval(
             function () {
               this.velocity.x = this.moveSpeed
@@ -120,7 +126,7 @@ export default class Player extends PlayerSprite {
         break
 
       case this.keys.attack:
-        if (!this.intervals.basicAttack && !this.isUlting) {
+        if (!this.intervals.basicAttack && !this.isUlting && !this.isDead) {
           if (this.stamina.current - this.basicAttack.cost > 0)
             this.switchSprite('basic-attack')
           this.intervals.basicAttack = setInterval(
@@ -133,7 +139,7 @@ export default class Player extends PlayerSprite {
         break
 
       case this.keys.ult:
-        if (this.ult.current === this.ult.needed) {
+        if (this.ult.current === this.ult.needed && !this.isDead) {
           this.ult.current = 0
           this.switchSprite('super-attack')
         }
@@ -198,6 +204,14 @@ export default class Player extends PlayerSprite {
 
   switchSprite(sprite) {
     switch (sprite) {
+      case 'die':
+        if (this.pose !== this.sprites.die.number) {
+          this.pose = this.sprites.die.number
+          this.maxFrames = this.sprites.die.frames
+          this.framesHold = this.sprites.die.speed
+          this.currentFrame = 0
+        }
+        break
       case 'super-attack':
         if (this.pose !== this.sprites.ult.number) {
           this.pose = this.sprites.ult.number
@@ -260,12 +274,17 @@ export default class Player extends PlayerSprite {
   }
 
   update() {
-    if (this.intervals.right && this.intervals.left) {
-      this.velocity.x = 0
-      this.switchSprite('idle')
+    if (!this.canMove) {
+      this.draw()
+      return
     }
 
-    if (this.isUlting) {
+    if (this.sprites.die.number === this.pose) {
+      this.isDead = true
+      if (this.currentFrame === this.sprites.die.frames - 1) {
+        this.canAnimate = false
+      }
+    } else if (this.isUlting) {
       if (this.currentFrame === this.sprites.ult.frames - 1) {
         this.switchSprite('idle')
         this.isUlting = false
@@ -293,6 +312,15 @@ export default class Player extends PlayerSprite {
       } else if (this.currentFrame === 4) this.canAttack = false
     }
 
+    if (
+      this.intervals.right &&
+      this.intervals.left &&
+      this.sprites.die.number !== this.pose &&
+      !this.isUlting
+    ) {
+      this.velocity.x = 0
+      this.switchSprite('idle')
+    }
     this.velocity.y += this.gravity
 
     this.position.x += this.velocity.x

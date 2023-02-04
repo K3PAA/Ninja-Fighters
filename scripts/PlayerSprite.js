@@ -14,6 +14,7 @@ export default class PlayerSprite {
     offset = { x: 0, y: 0 },
     dir = 1,
     pose = 0,
+    canAnimate = true,
   }) {
     this.position = position
     this.image = new Image()
@@ -27,6 +28,7 @@ export default class PlayerSprite {
     this.currentFrame = 0
     this.pose = pose
     this.offset = offset
+    this.canAnimate = canAnimate
   }
 
   draw() {
@@ -51,12 +53,14 @@ export default class PlayerSprite {
   }
 
   animateFrames() {
-    this.framesElapsed++
-    if (this.framesElapsed % this.framesHold === 0) {
-      this.framesElapsed = 0
-      if (this.currentFrame < this.maxFrames - 1) this.currentFrame++
-      else {
-        this.currentFrame = 0
+    if (this.canAnimate) {
+      this.framesElapsed++
+      if (this.framesElapsed % this.framesHold === 0) {
+        this.framesElapsed = 0
+        if (this.currentFrame < this.maxFrames - 1) this.currentFrame++
+        else {
+          this.currentFrame = 0
+        }
       }
     }
   }

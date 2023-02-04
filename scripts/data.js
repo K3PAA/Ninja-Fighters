@@ -75,7 +75,7 @@ export const fireFighter = new Player({
     current: 180,
   },
   basicAttack: {
-    dmg: 20,
+    dmg: 15,
     cost: 30,
   },
   ult: {
@@ -105,15 +105,20 @@ export const fireFighter = new Player({
       frames: 3,
       speed: 7,
     },
+    die: {
+      number: 13,
+      frames: 13,
+      speed: 14,
+    },
     attack: {
       number: 5,
       frames: 8,
-      speed: 10,
+      speed: 7,
     },
     ult: {
       number: 10,
       frames: 16,
-      speed: 6,
+      speed: 5,
     },
   },
 })
@@ -132,20 +137,20 @@ export const groundFighter = new Player({
     cost: 10,
   },
   ultAttackBox: {
-    x: 100,
-    y: 100,
+    x: 140,
+    y: 80,
     values: {
       right: {
-        x: 80,
-        y: 40,
+        x: 40,
+        y: 0,
       },
       left: {
         x: -140,
-        y: 40,
+        y: 0,
       },
     },
     offset: {
-      x: 80,
+      x: 40,
       y: 0,
     },
   },
@@ -212,6 +217,11 @@ export const groundFighter = new Player({
       number: 1,
       frames: 8,
       speed: 7,
+    },
+    die: {
+      number: 13,
+      frames: 17,
+      speed: 14,
     },
     jump: {
       number: 2,
