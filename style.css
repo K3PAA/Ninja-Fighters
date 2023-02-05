@@ -20,10 +20,6 @@ body {
   transform: translate(-50%, -25%);
 }
 
-canvas {
-  position: relative;
-}
-
 .players-info {
   padding: 20px;
   left: 50%;
@@ -202,6 +198,7 @@ canvas {
 }
 
 .lobby.off {
+  pointer-events: none;
   opacity: 0;
 }
 
@@ -237,4 +234,25 @@ canvas {
 .btn:hover {
   transform: translate(-10px, 0);
   background: rgba(94, 94, 94, 0.2);
+}
+
+.end-screen {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  z-index: 10;
+  position: absolute;
+  gap: 20px;
+  top: 50%;
+  left: 50%;
+  background-color: rgba(255, 255, 255, 0.6);
+  transform: translate(-50%, -40%);
+  border-radius: 5px;
+  transition: opacity 1s cubic-bezier(0, 0.75, 0, 1.01);
+  pointer-events: all;
+}
+
+.end-screen.off {
+  pointer-events: none;
+  opacity: 0;
 }

@@ -3,6 +3,7 @@ import {
   determineDamage,
   updateStamina,
   determineWinner,
+  resetOthers,
 } from './scripts/utils.js'
 import { fireFighter, groundFighter, background, shop } from './scripts/data.js'
 
@@ -12,53 +13,31 @@ const c = canvas.getContext('2d')
 canvas.width = 1024
 canvas.height = 576
 
-const player = fireFighter
-const enemy = groundFighter
+let player = fireFighter
+let enemy = groundFighter
 let time = 30
+let bg = background
+let sh = shop
 
 const animate = () => {
   requestAnimationFrame(animate)
-  background.draw()
-  shop.update()
+  bg.draw()
+  sh.update()
 
   if (player.health.current <= 0 || enemy.health.current <= 0 || time === 0) {
     determineWinner({ p1: player, p2: enemy })
+
+    clearInterval(ManaLoop)
+    clearInterval(timerId)
+    timerId = undefined
+    ManaLoop = undefined
   }
 
-  // if (player.isAttacking || true) {
-  //   c.fillStyle = 'rgba(0,0,0,0.7)'
-  //   c.fillRect(
-  //     player.position.x + player.attackBox.offset.x,
-  //     player.position.y + player.attackBox.offset.y,
-  //     player.attackBox.x,
-  //     player.attackBox.y
-  //   )
-  // }
-
-  // if (enemy.isAttacking || true) {
-  //   c.fillStyle = 'rgba(0,0,0,0.3)'
-  //   c.fillRect(
-  //     enemy.position.x + enemy.attackBox.offset.x,
-  //     enemy.position.y + enemy.attackBox.offset.y,
-  //     enemy.attackBox.x,
-  //     enemy.attackBox.y
-  //   )
-  // }
-
-  // Checking For Collision X axis
   determineDamage({ p1: player, p2: enemy, pName: 'player', eName: 'enemy' })
 
   determineDamage({ p1: enemy, p2: player, pName: 'enemy', eName: 'player' })
 
   if (enemy.isUlting === true) {
-    // c.fillStyle = 'rgba(220,0,0,0.7)'
-    // c.fillRect(
-    //   enemy.position.x + enemy.ultAttackBox.offset.x,
-    //   enemy.position.y + enemy.ultAttackBox.offset.y,
-    //   enemy.ultAttackBox.x,
-    //   enemy.ultAttackBox.y
-    // )
-
     document.querySelector(`.enemy-ult`).style.width = 0
 
     if (
@@ -81,13 +60,6 @@ const animate = () => {
 
   if (player.isUlting === true) {
     document.querySelector(`.player-ult`).style.width = 0
-    // c.fillStyle = 'rgba(220,0,0,0.7)'
-    // c.fillRect(
-    //   player.position.x + player.ultAttackBox.offset.x,
-    //   player.position.y + player.ultAttackBox.offset.y,
-    //   player.ultAttackBox.x,
-    //   player.ultAttackBox.y
-    // )
 
     if (
       enemy.position.x + enemy.width >
@@ -127,27 +99,79 @@ const startButton = document.querySelector('.start-btn')
 const lobby = document.querySelector('.lobby')
 
 startButton.addEventListener('click', () => {
-  animate()
   lobby.classList.add('off')
-
-  timerId = setInterval(() => {
-    time--
-    document.querySelector('#timer').innerHTML = time
-    if (time === 0) {
-      clearInterval(timerId)
-      timerId = undefined
-    }
-  }, 1000)
-
-  ManaLoop = setInterval(() => {
-    if (player.stamina.current < player.stamina.max) {
-      player.stamina.current += 0.2
-      updateStamina({ player, name: 'player' })
-    }
-
-    if (enemy.stamina.current < enemy.stamina.max) {
-      enemy.stamina.current += 1
-      updateStamina({ player: enemy, name: 'enemy' })
-    }
-  }, 150)
+  initialValues()
+  document.querySelector('#timer').innerHTML = time
+  timerId = setInterval(oneSecondLoop, 1000)
+  ManaLoop = setInterval(manaRefreshLoop, 150)
 })
+
+const resetBtn = document.querySelector('.btn-restart')
+
+const oneSecondLoop = () => {
+  time--
+  document.querySelector('#timer').innerHTML = time
+  if (time === 0) {
+    clearInterval(timerId)
+    timerId = undefined
+  }
+}
+
+const manaRefreshLoop = () => {
+  if (player.stamina.current < player.stamina.max) {
+    player.stamina.current += 0.5
+    updateStamina({ player, name: 'player' })
+  }
+
+  if (enemy.stamina.current < enemy.stamina.max) {
+    enemy.stamina.current += 1
+    updateStamina({ player: enemy, name: 'enemy' })
+  }
+}
+
+const resetValues = (po) => {
+  po.position.x = po.position.starting.x
+  po.position.y = po.position.starting.y
+
+  po.isDead = false
+  po.canAnimate = true
+  po.pose = po.sprites.idle.number
+  po.maxFrames = po.sprites.idle.frames
+  po.currentFrame = 0
+  po.stamina.current = po.stamina.max
+  po.health.current = po.health.starting
+}
+
+const initialValues = () => {
+  player = fireFighter
+  enemy = groundFighter
+  time = 30
+
+  resetValues(player)
+  resetValues(enemy)
+
+  updateStamina({ player, name: 'player' })
+  updateStamina({ player: enemy, name: 'enemy' })
+  resetOthers('player')
+  resetOthers('enemy')
+}
+
+const endScreen = document.querySelector('.end-screen')
+
+resetBtn.addEventListener('click', () => {
+  initialValues()
+  timerId = setInterval(oneSecondLoop, 1000)
+  ManaLoop = setInterval(manaRefreshLoop, 150)
+  document.querySelector('#timer').innerHTML = time
+  endScreen.classList.add('off')
+})
+
+const toLobby = document.querySelector('.btn-lobby')
+
+toLobby.addEventListener('click', () => {
+  initialValues()
+  endScreen.classList.add('off')
+  lobby.classList.remove('off')
+})
+
+animate()

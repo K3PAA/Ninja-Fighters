@@ -25,6 +25,11 @@ export function rectangularCollision({ rect1, rect2 }) {
   }
 }
 
+export function resetOthers(name) {
+  document.querySelector(`.${name}-health`).style.width = 100 + '%'
+  document.querySelector(`.${name}-ult`).style.width = 0
+}
+
 export function determineDamage({ p1, p2, pName, eName }) {
   if (p1.canAttack && p1.stamina.current > 0) {
     if (rectangularCollision({ rect1: p1, rect2: p2 })) {
@@ -41,9 +46,9 @@ export function determineDamage({ p1, p2, pName, eName }) {
 
       p1.hitted = true
       p1.canAttack = false
-      p1.stamina.current -= 10
+      p1.stamina.current -= p1.basicAttack.cost
     } else {
-      p1.stamina.current -= 0.4
+      p1.stamina.current -= 2
     }
     updateStamina({ player: p1, name: pName })
   }
@@ -64,14 +69,16 @@ export function determineWinner({ p1, p2 }) {
   c.fillRect(0, 0, canvas.width, canvas.height)
   c.fillStyle = 'rgb(255,255,255)'
   if (playerHealth > enemyHealth) {
-    c.fillText('Player Won', canvas.width / 2 - 150, canvas.height / 2 - 50)
+    c.fillText('Player 1 Won', canvas.width / 2 - 175, canvas.height / 2 - 50)
     p2.switchSprite('die')
   } else if (playerHealth < enemyHealth) {
     p1.switchSprite('die')
-    c.fillText('Enemy Won', canvas.width / 2 - 150, canvas.height / 2 - 50)
+    c.fillText('Player 2 Won', canvas.width / 2 - 175, canvas.height / 2 - 50)
   } else {
     c.fillText('Draw', canvas.width / 2 - 65, canvas.height / 2 - 50)
     p1.switchSprite('die')
     p2.switchSprite('die')
   }
+
+  document.querySelector('.end-screen').classList.remove('off')
 }

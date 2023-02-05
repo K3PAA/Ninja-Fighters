@@ -3,6 +3,10 @@ import Sprite from './Sprite.js'
 
 export const fireFighter = new Player({
   position: {
+    starting: {
+      x: 100,
+      y: 100,
+    },
     x: 100,
     y: 100,
   },
@@ -125,6 +129,10 @@ export const fireFighter = new Player({
 
 export const groundFighter = new Player({
   position: {
+    starting: {
+      x: 800,
+      y: 100,
+    },
     x: 800,
     y: 100,
   },
@@ -134,7 +142,7 @@ export const groundFighter = new Player({
   },
   basicAttack: {
     dmg: 10,
-    cost: 10,
+    cost: 20,
   },
   ultAttackBox: {
     x: 140,
@@ -221,7 +229,7 @@ export const groundFighter = new Player({
     die: {
       number: 13,
       frames: 17,
-      speed: 14,
+      speed: 11,
     },
     jump: {
       number: 2,
